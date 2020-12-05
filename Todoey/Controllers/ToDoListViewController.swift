@@ -20,7 +20,9 @@ class ToDoListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         print(context)
+        
         loadItems()
     }
     
@@ -94,9 +96,9 @@ class ToDoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    func loadItems() {
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
 //MARK - SQLite
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        
         do {
             itemArray = try context.fetch(request)
         } catch {
@@ -116,5 +118,17 @@ class ToDoListViewController: UITableViewController {
         
     }
     
+}
 
+//MARK: - search bar methods
+
+extension ToDoListViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        print(searchBar.text!)
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        loadItems(with: request)
+
+    }
 }
