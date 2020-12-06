@@ -35,7 +35,8 @@ class ToDoListViewController: UITableViewController {
     //MARK: - TableView Delegate Methods
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
         cell.textLabel?.text = itemArray[indexPath.row].title
         cell.accessoryType = itemArray[indexPath.row].done ? .checkmark : .none
@@ -53,7 +54,6 @@ class ToDoListViewController: UITableViewController {
         //for delete
         //context.delete(itemArray[indexPath.row]) // из дб, далее обязательно сохранить контекст
         //itemArray.remove(at: indexPath.row) // из array
-        
         
         saveItems()
         tableView.deselectRow(at: indexPath, animated: true)
@@ -97,7 +97,8 @@ class ToDoListViewController: UITableViewController {
     }
     
     func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
-//MARK - SQLite
+
+        //MARK - SQLite
         
         do {
             itemArray = try context.fetch(request)
@@ -106,7 +107,7 @@ class ToDoListViewController: UITableViewController {
         }
         
         
-//MARK - decoder
+        //MARK - decoder
 //        if let data = try? Data(contentsOf: dataFilePath!) {
 //            let decoder = PropertyListDecoder()
 //            do {
@@ -116,6 +117,7 @@ class ToDoListViewController: UITableViewController {
 //
 //        }
         
+        self.tableView.reloadData()
     }
     
 }
@@ -129,6 +131,16 @@ extension ToDoListViewController: UISearchBarDelegate {
         request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         loadItems(with: request)
-
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            
+            //func for go to original state
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
     }
 }
